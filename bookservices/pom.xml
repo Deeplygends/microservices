@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>fr.miage.microservicesproject</groupId>
-    <artifactId>borrowservices</artifactId>
+    <artifactId>book-services</artifactId>
     <version>0.0.1</version>
-    <name>borrowservices</name>
+    <name>book-services</name>
     <description>Demo project for Spring Boot</description>
     <packaging>jar</packaging>
 
@@ -62,7 +62,7 @@
     </dependencies>
 
     <build>
-        <finalName>borrow-micro-services</finalName>
+        <finalName>book-micro-services</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -80,7 +80,7 @@
                         <resource>
                             <targetPath>/</targetPath>
                             <directory>${project.build.directory}</directory>
-                            <include>borrow-micro-services.jar</include>
+                            <include>book-micro-services.jar</include>
                         </resource>
                     </resources>
                 </configuration>
@@ -94,4 +94,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

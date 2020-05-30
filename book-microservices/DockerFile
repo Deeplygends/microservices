@@ -1,4 +1,0 @@
-FROM openjdk:8
-ADD target/docker-book.jar docker-book.jar
-EXPOSE 8085
-ENTRYPOINT ["java", "-jar", "docker-book.jar"]

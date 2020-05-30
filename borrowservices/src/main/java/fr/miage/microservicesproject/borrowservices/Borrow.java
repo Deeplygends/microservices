@@ -19,10 +19,10 @@ public class Borrow {
     @Column(name="reader")
     private Long reader;
 
-    @Column(name="dateBorrow")
+    @Column(name="date_borrow")
     private Date dateBorrow;
 
-    @Column(name="dateReturn")
+    @Column(name="date_return")
     private Date dateReturn;
 
     public Long getId() {

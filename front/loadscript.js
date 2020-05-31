@@ -34,11 +34,14 @@ function fillAllBooks(){
     	for(var book in data)
     	{
     		console.log(book);
-    			$("#books table tbody").append("<tr><td>"+data[book]["isbn"]+"</td><td>"+data[book]["titre"]+"</td><td>"+data[book]["auteur"]+"</td><td>"+data[book]["editeur"]+"</td><td>"+data[book]["edition"]+"</td><td><div id=\""+data[book]["isbn"]+"\"class=\"btn btn-alert delete\">delete</div></td></tr>")
+    			$("#books table tbody").append("<tr><td>"+data[book]["isbn"]+"</td><td>"+data[book]["titre"]+"</td><td>"+data[book]["auteur"]+"</td><td>"+data[book]["editeur"]+"</td><td>"+data[book]["edition"]+"</td><td><div id=\"delete"+data[book]["isbn"]+"\" class=\"btn btn-danger delete\">delete</div></td><td><div id=\"update"+data[book]["isbn"]+"\" class=\"btn btn-info update\">modify</div></td></tr>")
     	
       }
        $(".delete").on('click', function(){
-          deleteBook($(this).attr("id"));
+          deleteBook($(this).attr("id").substring(6));
+        });
+       $(".update").on('click', function(){
+          updateBook($(this).attr("id").substring(6));
         });
        $ ("#btnCreateBook").on('click', function(){
           CreateBook();
@@ -96,7 +99,7 @@ function CreateBook()
    $("#maincontent").append("<div class='form-group'><label for='inputTitre'> Titre</label> <input type='text' class='form-control' id='inputTitre' placeholder='Enter the title'/></div>");
    $("#maincontent").append("<div class='form-group'><label for='inputAuteur'> Author</label> <input type='text' class='form-control' id='inputAuteur' placeholder='Enter the author'/></div>");
    $("#maincontent").append("<div class='form-group'><label for='inputEditeur'> Editor</label> <input type='text' class='form-control' id='inputEditeur' placeholder='Enter the editor'/></div>");
-   $("#maincontent").append("<div class='form-group'><label for='inputEdition'> Edition</label> <input type='text' class='form-control' id='inputEdition' placeholder='Enter the year of edition (yyyy)'/></div>");
+   $("#maincontent").append("<div class='form-group'><label for='inputEdition'> Edition</label> <input type='number' class='form-control' id='inputEdition' placeholder='Enter the year of edition (yyyy)'/></div>");
    $("#maincontent").append("<div class='form-group'><div id='btnCreateBookValidation' class='btn btn-primary'>Create</div></div>");
    $("#btnCreateBookValidation").on('click', function(){
         console.log("validation create");
@@ -129,7 +132,7 @@ function CreateBook()
                 }
                 if(ok) // pas d'erreur
                 {
-                  console.log( JSON.stringify({"isbn": isbn, "titre" : $('#inputTitre'), "auteur" : $('#inputAuteur').val(), "editeur" : $('#inputEditeur').val(), "edition" : $('inputEdition').val()}))
+                  console.log( JSON.stringify({"isbn": isbn, "titre" : $('#inputTitre'), "auteur" : $('#inputAuteur').val(), "editeur" : $('#inputEditeur').val(), "edition" : $('#inputEdition').val()}))
                     // On POST le book et on revient à la liste
                     $.ajax({
                       xhrFields: {
@@ -138,7 +141,7 @@ function CreateBook()
                       type: "POST",
                       url: "http://localhost:8001/book/create",
                       contentType : "application/json",
-                      data : JSON.stringify({"isbn": isbn, "titre" : $('#inputTitre').val(), "auteur" : $('#inputAuteur').val(), "editeur" : $('#inputEditeur').val(), "edition" : $('inputEdition').val()}),
+                      data : JSON.stringify({"isbn": isbn, "titre" : $('#inputTitre').val(), "auteur" : $('#inputAuteur').val(), "editeur" : $('#inputEditeur').val(), "edition" : $('#inputEdition').val()}),
                       success : function(data){
                             fillAllBooks();
                       },
@@ -157,6 +160,73 @@ function CreateBook()
 
    });
 }
+
+function updateBook(isbn)
+{
+
+    $.ajax({ 
+              xhrFields: {
+                  withCredentials: true
+              },
+              type: "GET",
+              url: "http://localhost:8001/book/"+isbn,
+              success : function(book)
+                      {
+                         $("#maincontent").html("");
+                         $("#maincontent").append("<div class=\"text-center\">Update book "+book.isbn+" </div>");
+                         $("#maincontent").append("<form>");
+                         $("#maincontent").append("<div id='error' class='hidden'><label></label></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputIsbn'> ISBN</label> <input type='text' class='form-control' id='inputIsbn' placeholder='Enter the isbn' value='"+book.isbn+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputTitre'> Titre</label> <input type='text' class='form-control' id='inputTitre' placeholder='Enter the title' value='"+book.titre+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputAuteur'> Author</label> <input type='text' class='form-control' id='inputAuteur' placeholder='Enter the author' value='"+book.auteur+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputEditeur'> Editor</label> <input type='text' class='form-control' id='inputEditeur' placeholder='Enter the editor' value='"+book.editeur+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputEdition'> Edition</label> <input type='text' class='form-control' id='inputEdition' placeholder='Enter the year of edition (yyyy)' value='"+book.edition+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><div id='btnUpdateBookValidation' class='btn btn-primary'>Update this book</div></div>");
+                         $("#btnUpdateBookValidation").on('click', function(){
+                              console.log("validation update");
+                              var isbn = $("#inputIsbn").val()
+                              var yearEdition = $("#inputEdition").val();
+                              $("#error label").html("");
+                              $("#error").addClass("hidden").removeClass("alert alert-danger");
+                          
+                              var ok = true;
+                                   
+                              if(!$.isNumeric(yearEdition))
+                              {
+                                  ok = false;
+                                  $("#error label").html(" The year must be a numeric integer");
+                              }
+                              if(ok) // pas d'erreur
+                              {
+                                       
+                                          // On POST le book et on revient à la liste
+                                  $.ajax({
+                                            xhrFields: {
+                                                  withCredentials: true
+                                            },
+                                            type: "PUT",
+                                            url: "http://localhost:8001/book/update",
+                                            contentType : "application/json",
+                                            data : JSON.stringify({"isbn": isbn, "titre" : $('#inputTitre').val(), "auteur" : $('#inputAuteur').val(), "editeur" : $('#inputEditeur').val(), "edition" : $('#inputEdition').val()}),
+                                            success : function(data){
+                                                  fillAllBooks();
+                                            },
+                                            error: function( jqXhr, textStatus, errorThrown ){
+                                                console.log( errorThrown );
+                                             }
+                                          });
+                              }
+                              else //si l'isbn exist ou l'année d'edition n'est pas un entier
+                              {
+                                  console.log(ok);
+                                  $("#error").removeClass("hidden").addClass("alert alert-danger");
+                              }
+                                    
+                        });
+                       }
+      });
+}
+
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
   if ("withCredentials" in xhr) {

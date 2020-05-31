@@ -45,7 +45,7 @@ function deleteReader(id){
         withCredentials: true
     },
     type: "GET",
-    url: "http://localhost:8002/reader/"+isbn
+    url: "http://localhost:8002/reader/"+id
    }).done(function (data) {
      $("#maincontent").append("<div class=\"text-center\">deleting a reader of id " + id +" </div>");
       $("#maincontent").append("<div class=\"text-center\"><label>Titre : </label><label>"+data["lastName"]+"</label></div>");
@@ -61,7 +61,7 @@ function deleteReader(id){
                   withCredentials: true
               },
               type: "DELETE",
-              url: "http://localhost:8002/reader/delete/"+isbn
+              url: "http://localhost:8002/reader/delete/"+id
              }).done(function (data) {
                 fillAllReaders();
              });
@@ -126,7 +126,7 @@ function createReader()
                       type: "POST",
                       url: "http://localhost:8002/reader/create",
                       contentType : "application/json",
-                      data : JSON.stringify({"id": id, "lastName" : $('#inputLastName').val(), "firstName" : $('#inputFirstName').val(), "gender" : $('#inputGender').val(), "birthDate" : birthdate, "address" : $('#inputAddress').val()}),
+                      data : JSON.stringify({"id": id, "lastName" : $('#inputLastName').val(), "firstName" : $('#inputFirstName').val(), "gender" : $('#inputGender').val(), "dateBirthString" : birthdate, "address" : $('#inputAddress').val()}),
                       success : function(data){
                         console.log("Success post");
                             fillAllReaders();
@@ -146,7 +146,7 @@ function createReader()
    });
 }
 
-function updateReader(isbn)
+function updateReader(id)
 {
 
     $.ajax({ 
@@ -154,58 +154,59 @@ function updateReader(isbn)
                   withCredentials: true
               },
               type: "GET",
-              url: "http://localhost:8002/reader/"+isbn,
+              url: "http://localhost:8002/reader/"+id,
               success : function(Reader)
                       {
+                        console.log(Reader);
+                        console.log(Reader.dateBirth);
                          $("#maincontent").html("");
-                         $("#maincontent").append("<div class=\"text-center\">Update Reader "+Reader.isbn+" </div>");
+                         $("#maincontent").append("<div class=\"text-center\">Update Reader "+Reader.id+" </div>");
                          $("#maincontent").append("<form>");
                          $("#maincontent").append("<div id='error' class='hidden'><label></label></div>");
-                         $("#maincontent").append("<div class='form-group'><label for='inputIsbn'> ISBN</label> <input type='text' class='form-control' id='inputIsbn' placeholder='Enter the isbn' value='"+Reader.isbn+"'/></div>");
-                         $("#maincontent").append("<div class='form-group'><label for='inputTitre'> Titre</label> <input type='text' class='form-control' id='inputTitre' placeholder='Enter the title' value='"+Reader.titre+"'/></div>");
-                         $("#maincontent").append("<div class='form-group'><label for='inputAuteur'> Author</label> <input type='text' class='form-control' id='inputAuteur' placeholder='Enter the author' value='"+Reader.auteur+"'/></div>");
-                         $("#maincontent").append("<div class='form-group'><label for='inputEditeur'> Editor</label> <input type='text' class='form-control' id='inputEditeur' placeholder='Enter the editor' value='"+Reader.editeur+"'/></div>");
-                         $("#maincontent").append("<div class='form-group'><label for='inputEdition'> Edition</label> <input type='text' class='form-control' id='inputEdition' placeholder='Enter the year of edition (yyyy)' value='"+Reader.edition+"'/></div>");
-                         $("#maincontent").append("<div class='form-group'><div id='btnUpdateReaderValidation' class='btn btn-primary'>Update this Reader</div></div>");
+                         $("#maincontent").append("<div id='error' class='hidden'><label></label></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputLastName'> Last Name</label> <input type='text' class='form-control' id='inputLastName' placeholder='Enter the last name' value='"+Reader.lastName+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputFirstName'> First Name</label> <input type='text' class='form-control' id='inputFirstName' placeholder='Enter the first name' value='"+Reader.firstName+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputGender'> Gender</label> <input type='text' class='form-control' id='inputGender' placeholder='Enter the gender (M / F)' value='"+Reader.gender+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputBirthDate'> Birth Date</label> <input type='date' class='form-control' id='inputBirthDate' placeholder='Enter the birth date (yyyy-MM-dd)' value='"+Reader.dateBirth+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputAddress'> Address</label> <input type='text' class='form-control' id='inputAddress' placeholder='Enter the address' value='"+Reader.address+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><div id='btnUpdateReaderValidation' class='btn btn-primary'>Create</div></div>");
                          $("#btnUpdateReaderValidation").on('click', function(){
-                              console.log("validation update");
-                              var isbn = $("#inputIsbn").val()
-                              var yearEdition = $("#inputEdition").val();
-                              $("#error label").html("");
-                              $("#error").addClass("hidden").removeClass("alert alert-danger");
-                          
-                              var ok = true;
-                                   
-                              if(!$.isNumeric(yearEdition))
-                              {
-                                  ok = false;
-                                  $("#error label").html(" The year must be a numeric integer");
-                              }
-                              if(ok) // pas d'erreur
-                              {
-                                       
-                                          // On POST le Reader et on revient à la liste
-                                  $.ajax({
+                               console.log("validation create");
+                               var validBirthDate = isValidDate($("#inputBirthDate").val());
+                               $("#error label").html("");
+                               $("#error").addClass("hidden").removeClass("alert alert-danger");
+                              
+
+                                if(validBirthDate) // pas d'erreur
+                                {
+                                  var birthdate = new Date($('#inputBirthDate').val());
+                                  birthdate = timeFormat(birthdate);
+                                
+                                  console.log(birthdate);
+                                               // On POST le Reader et on revient à la liste
+                                          $.ajax({
                                             xhrFields: {
                                                   withCredentials: true
                                             },
                                             type: "PUT",
-                                            url: "http://localhost:8002/Reader/update",
+                                            url: "http://localhost:8002/reader/update",
                                             contentType : "application/json",
-                                            data : JSON.stringify({"isbn": isbn, "titre" : $('#inputTitre').val(), "auteur" : $('#inputAuteur').val(), "editeur" : $('#inputEditeur').val(), "edition" : $('#inputEdition').val()}),
+                                            data : JSON.stringify({"id": id, "lastName" : $('#inputLastName').val(), "firstName" : $('#inputFirstName').val(), "gender" : $('#inputGender').val(), "birthDate" : birthdate, "address" : $('#inputAddress').val()}),
                                             success : function(data){
+                                              console.log("Success put");
                                                   fillAllReaders();
                                             },
                                             error: function( jqXhr, textStatus, errorThrown ){
                                                 console.log( errorThrown );
                                              }
                                           });
-                              }
-                              else //si l'isbn exist ou l'année d'edition n'est pas un entier
-                              {
-                                  console.log(ok);
-                                  $("#error").removeClass("hidden").addClass("alert alert-danger");
-                              }
+                                }
+                                else //si l'isbn exist ou l'année d'edition n'est pas un entier
+                                {
+                                    console.log(ok);
+                                    $("#error label").html(" the birth date must be in yyyy-MM-dd format");
+                                    $("#error").removeClass("hidden").addClass("alert alert-danger");
+                               }
                                     
                         });
                        }

@@ -29,7 +29,7 @@ To build and run the application on a Windows environment, please follow the ins
 - open your favorite browser (i.e. not IE) and browse `http://localhost/front`
 - enjoy your book borrower application :)
 
-To forgive us for the long tutorial, here's a Mr Potato in ASCII :
+To forgive us for the long tutorial, here's a giant potato in ASCII :
 
                                                                                                                                                                               
                                                                                                                                                                               

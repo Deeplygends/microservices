@@ -175,9 +175,10 @@ function updateReader(id)
                          $("#maincontent").append("<div class='form-group'><label for='inputLastName'> Last Name</label> <input type='text' class='form-control' id='inputLastName' placeholder='Enter the last name' value='"+Reader.lastName+"'/></div>");
                          $("#maincontent").append("<div class='form-group'><label for='inputFirstName'> First Name</label> <input type='text' class='form-control' id='inputFirstName' placeholder='Enter the first name' value='"+Reader.firstName+"'/></div>");
                          $("#maincontent").append("<div class='form-group'><label for='inputGender'> Gender</label> <input type='text' class='form-control' id='inputGender' placeholder='Enter the gender (M / F)' value='"+Reader.gender+"'/></div>");
-                         $("#maincontent").append("<div class='form-group'><label for='inputBirthDate'> Birth Date</label> <input type='date' class='form-control' id='inputBirthDate' placeholder='Enter the birth date (yyyy-MM-dd)' value='"+Reader.dateBirth+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputBirthDate'> Birth Date</label> <input type='date' class='form-control' id='inputBirthDate' placeholder='Enter the birth date (yyyy-MM-dd)' value='"+Reader.dateBirth.replace("-","/")+"'/></div>");
                          $("#maincontent").append("<div class='form-group'><label for='inputAddress'> Address</label> <input type='text' class='form-control' id='inputAddress' placeholder='Enter the address' value='"+Reader.address+"'/></div>");
                          $("#maincontent").append("<div class='form-group'><div id='btnUpdateReaderValidation' class='btn btn-primary'>Create</div></div>");
+                         $("#inputBirthDate").val(Reader.dateBirth);
                          $("#btnUpdateReaderValidation").on('click', function(){
                                console.log("validation create");
                                var validBirthDate = isValidDate($("#inputBirthDate").val());

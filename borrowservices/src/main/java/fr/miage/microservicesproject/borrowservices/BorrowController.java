@@ -5,17 +5,18 @@ import fr.miage.microservicesproject.borrowservices.exceptions.BorrowAlreadyRetu
 import fr.miage.microservicesproject.borrowservices.exceptions.BorrowNotFoundException;
 import fr.miage.microservicesproject.borrowservices.exceptions.DateFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 public class BorrowController {
+
     @Autowired
     private IBorrowRepository repository;
 
@@ -31,7 +32,6 @@ public class BorrowController {
         return repository.findBorrowsByDateReturnIsNull();
         //return repository.findAll().stream().filter(x -> x.getDateReturn() == null).collect(Collectors.toList());
     }
-
     @GetMapping("/borrow/bydateborrow/{dateBorrow}")
     public List<Borrow> getBorrows(@PathVariable String dateBorrow) throws DateFormatException {
         try {
@@ -47,31 +47,45 @@ public class BorrowController {
     {
         return repository.findBorrowsByReaderEquals(reader);
     }
-
     @PostMapping(path="/borrow/create", consumes = "application/json", produces ="application/json")
     public void createBorrow(@RequestBody Borrow _borrow) throws BorrowAlreadyReturnException {
-        if(repository.existsById(_borrow.getId()))
+
+        if(_borrow.getId() != null)
             throw new BorrowAlreadyReturnException();
+        Calendar today = Calendar.getInstance();
+        _borrow.setDateBorrow(today.getTime());
         repository.save(_borrow);
     }
-    @PutMapping("/borrow/return")
-    public void returnBorrow(@RequestBody Borrow _borrow) throws BorrowNotFoundException, BorrowAlreadyReturnException {
-        Optional<Borrow> borrow = repository.findById(_borrow.getId());
+    @PostMapping("/borrow/return/{id}")
+    public void returnBorrow(@PathVariable Long id) throws BorrowNotFoundException, BorrowAlreadyReturnException {
+        Optional<Borrow> borrow = repository.findById(id);
         if(borrow.isPresent()) {
-            if (borrow.get().getDateReturn() == null)
-                repository.save(_borrow);
+            Borrow toSave = borrow.get();
+            if (toSave.getDateReturn() == null) {
+                Calendar today = Calendar.getInstance();
+                toSave.setDateReturn(today.getTime());
+                repository.save(toSave);
+            }
             else
                 throw new BorrowAlreadyReturnException();
         }
         else
             throw new BorrowNotFoundException();
     }
-    @DeleteMapping("borrow/delete/{id]")
+    @DeleteMapping("/borrow/delete/{id}")
     public void deleteBorrow(@PathVariable Long id) throws BorrowNotFoundException {
         if(repository.existsById(id))
             repository.deleteById(id);
         else
             throw new BorrowNotFoundException();
+    }
+    @DeleteMapping("/borrow/deleteByBook/{isbn}")
+    public void deleteBorrowBook(@PathVariable Long isbn) throws BorrowNotFoundException {
+        repository.deleteAll(repository.findBorrowsByIsbnEquals(isbn));
+    }
+    @DeleteMapping("/borrow/deleteByReader/{reader}")
+    public void deleteBorrowReader(@PathVariable Long reader)  {
+        repository.deleteAll(repository.findBorrowsByReaderEquals(reader));
     }
 
 }

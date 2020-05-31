@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost/front/*")
 @RestController
 public class ReaderController {
 
@@ -31,6 +32,7 @@ public class ReaderController {
     public void addReader(@RequestBody Reader reader) throws ReaderAlreadyExistsException {
         if(repository.existsById(reader.getId()))
             throw new ReaderAlreadyExistsException();
+        repository.save(reader);
     }
     @DeleteMapping(path="/reader/delete/{id}")
     public void deleteReader(@PathVariable Long id) throws ReaderNotFoundException {
@@ -39,13 +41,7 @@ public class ReaderController {
         else
             throw new ReaderNotFoundException();
     }
-    @DeleteMapping(path="/reader/delete/")
-    public void deleteReader(@RequestBody Reader reader) throws ReaderNotFoundException {
-        if(repository.existsById(reader.getId()))
-            repository.delete(reader);
-        else
-            throw new ReaderNotFoundException();
-    }
+
     @PutMapping(path="/reader/update")
     public void updateReader(@RequestBody Reader reader) throws ReaderNotFoundException {
         if(repository.existsById(reader.getId()))

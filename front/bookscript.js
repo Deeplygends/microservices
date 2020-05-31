@@ -5,7 +5,7 @@ function fillAllBooks(){
 	$("#maincontent").html("");
 	$("#maincontent").append("<div id='btnCreateBook' class=\"btn btn-primary\">Create Book</div>");
 	$("#maincontent").append("<h1 class=\"text-center\">Books</h1>");
-	$("#maincontent").append("<div id='books'><table class='table'><thead></thead><tbody></tbody></table></div>");
+	$("#maincontent").append("<div id='books'><table class='table table-striped table-dark'><thead></thead><tbody></tbody></table></div>");
 	 $.ajax({
     xhrFields: {
         withCredentials: true
@@ -18,7 +18,7 @@ function fillAllBooks(){
     	for(var book in data)
     	{
     		console.log(book);
-    			$("#books table tbody").append("<tr><td>"+data[book]["isbn"]+"</td><td>"+data[book]["titre"]+"</td><td>"+data[book]["auteur"]+"</td><td>"+data[book]["editeur"]+"</td><td>"+data[book]["edition"]+"</td><td><div id=\"delete"+data[book]["isbn"]+"\" class=\"btn btn-danger delete\">delete</div></td><td><div id=\"update"+data[book]["isbn"]+"\" class=\"btn btn-info update\">modify</div></td></tr>")
+    			$("#books table tbody").append("<tr><td>"+data[book]["isbn"]+"</td><td>"+data[book]["titre"]+"</td><td>"+data[book]["auteur"]+"</td><td>"+data[book]["editeur"]+"</td><td>"+data[book]["edition"]+"</td><td><div id=\"delete"+data[book]["isbn"]+"\" class=\"btn btn-danger delete\">delete</div></td><td><div id=\"update"+data[book]["isbn"]+"\" class=\"btn btn-info update\">modify</div></td><td><div id=\"borrow"+data[book]["isbn"]+"\" class=\"btn btn-info borrow\">Borrow</div></td></tr>")
     	
       }
        $(".delete").on('click', function(){
@@ -26,6 +26,9 @@ function fillAllBooks(){
         });
        $(".update").on('click', function(){
           updateBook($(this).attr("id").substring(6));
+        });
+        $(".borrow").on('click', function(){
+          borrowBook($(this).attr("id").substring(6));
         });
        $ ("#btnCreateBook").on('click', function(){
           CreateBook();
@@ -62,7 +65,15 @@ function deleteBook(isbn){
               type: "DELETE",
               url: "http://localhost:8001/book/delete/"+isbn
              }).done(function (data) {
-                fillAllBooks();
+                       $.ajax({
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    type: "DELETE",
+                    url: "http://localhost:8003/borrow/deleteByBook/"+isbn
+                   }).done(function (data) {
+                      fillAllBooks();
+                   });
              });
       });
       $("#btnReturnToBook").on('click', function(){
@@ -160,7 +171,7 @@ function updateBook(isbn)
                          $("#maincontent").append("<div class=\"text-center\">Update book "+book.isbn+" </div>");
                          $("#maincontent").append("<form>");
                          $("#maincontent").append("<div id='error' class='hidden'><label></label></div>");
-                         $("#maincontent").append("<div class='form-group'><label for='inputIsbn'> ISBN</label> <input type='text' class='form-control' id='inputIsbn' placeholder='Enter the isbn' value='"+book.isbn+"'/></div>");
+                         $("#maincontent").append("<div class='form-group'><label for='inputIsbn'> ISBN</label> <input type='text' class='form-control' id='inputIsbn' placeholder='Enter the isbn' readonly value='"+book.isbn+"'/></div>");
                          $("#maincontent").append("<div class='form-group'><label for='inputTitre'> Titre</label> <input type='text' class='form-control' id='inputTitre' placeholder='Enter the title' value='"+book.titre+"'/></div>");
                          $("#maincontent").append("<div class='form-group'><label for='inputAuteur'> Author</label> <input type='text' class='form-control' id='inputAuteur' placeholder='Enter the author' value='"+book.auteur+"'/></div>");
                          $("#maincontent").append("<div class='form-group'><label for='inputEditeur'> Editor</label> <input type='text' class='form-control' id='inputEditeur' placeholder='Enter the editor' value='"+book.editeur+"'/></div>");
@@ -209,4 +220,72 @@ function updateBook(isbn)
                         });
                        }
       });
+}
+function borrowBook(isbn)
+{
+   $("#maincontent").html("");
+   $("#maincontent").append("<div class=\"text-center\">Borrow "+isbn+" </div>");
+   $("#maincontent").append("<label for='reader'>Select the borrower</label><select id='reader'></select>");
+   readers = GetAllReaders();
+   $.each(readers, function(i, reader)
+   {
+      $("#reader").append("<option value='"+reader.id+"'>"+reader.firstName+" "+reader.lastName+"</option>")
+   });
+   $("#maincontent").append("<div class='btn btn-success' id='btnBorrowBook'>Borrow this book</div>");
+   $("#btnBorrowBook").on('click', function(){
+    console.log(JSON.stringify({"reader":$("#reader").val(),"isbn":isbn, "dateBorrow": null, "dateReturn": null}));
+      $.ajax({
+                xhrFields: {
+                    withCredentials: true
+                },
+                type: "POST",
+                url: "http://localhost:8003/borrow/create",
+                contentType : "application/json",
+                data : JSON.stringify({"reader":$("#reader").val(),"isbn":isbn}),
+                success : function(data)
+                {
+                   console.log("success");
+                   FillAllBorrow();
+                },
+                error: function()
+                {
+                  console.log("error");
+                }
+      });
+   });
+
+}
+function GetAllBooks()
+{
+    var books = null;
+     $.ajax({
+    xhrFields: {
+        withCredentials: true
+    },
+    async: false,
+    type: "GET",
+    url: "http://localhost:8001/book",
+    success : function (data) {
+      books = data;
+   }});
+   return books;
+
+
+}
+
+function GetOneBook(isbn)
+{
+  var book = null;
+     $.ajax({
+    xhrFields: {
+        withCredentials: true
+    },
+    async:false,
+    type: "GET",
+    url: "http://localhost:8001/book/"+isbn,
+    success : function (data) {
+      book = data;
+   } });
+   return book;
+
 }

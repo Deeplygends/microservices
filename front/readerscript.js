@@ -5,7 +5,7 @@ function fillAllReaders(){
 	$("#maincontent").html("");
 	$("#maincontent").append("<div id='btnCreateReader' class=\"btn btn-primary\">Create Reader</div>");
 	$("#maincontent").append("<h1 class=\"text-center\">Reader</h1>");
-	$("#maincontent").append("<div id='readers'><table class='table'><thead></thead><tbody></tbody></table></div>");
+	$("#maincontent").append("<div id='readers'><table class='table table-striped table-dark'><thead></thead><tbody></tbody></table></div>");
 	 $.ajax({
     xhrFields: {
         withCredentials: true
@@ -63,7 +63,15 @@ function deleteReader(id){
               type: "DELETE",
               url: "http://localhost:8002/reader/delete/"+id
              }).done(function (data) {
-                fillAllReaders();
+                      $.ajax({
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    type: "DELETE",
+                    url: "http://localhost:8003/borrow/deleteByReader/"+id
+                   }).done(function (data) {
+                      fillAllReaders();
+                   });
              });
       });
       $("#btnReturnToReader").on('click', function(){
@@ -83,7 +91,7 @@ function createReader()
               },
               async : false,
               type: "GET",
-              url: "http://localhost:8002/reader/",
+              url: "http://localhost:8002/reader/create",
               success : function (data) {
                 readers = data;
               }
@@ -211,4 +219,41 @@ function updateReader(id)
                         });
                        }
       });
+}
+
+function GetAllReaders()
+{
+    var readers = null;
+     $.ajax({
+    xhrFields: {
+        withCredentials: true
+    },
+    async:false,
+    type: "GET",
+    url: "http://localhost:8002/reader",
+    success : function (data) {
+      readers = data;
+   } });
+   return readers;
+
+
+}
+
+function GetOneReader(id)
+{
+  var reader = null;
+     $.ajax({
+    xhrFields: {
+        withCredentials: true
+    },
+    async : false,
+    type: "GET",
+    url: "http://localhost:8002/reader/"+id,
+    success : function (data) {
+      console.log("reader : ")
+      console.log(data);
+      reader = data;
+   }});
+   return reader;
+
 }

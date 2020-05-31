@@ -1,10 +1,15 @@
 package fr.miage.microservicesproject.readerservices;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.tomcat.jni.Local;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -21,6 +26,8 @@ public class Reader {
 
     @Column(name="gender")
     private char gender;
+
+    private String dateBirthString;
 
     @Column(name="date_birth")
     private Date dateBirth;
@@ -85,6 +92,16 @@ public class Reader {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getDateBirthString() {
+        return dateBirthString;
+    }
+
+    public void setDateBirthString(String dateBirthString) throws ParseException {
+        this.dateBirthString = dateBirthString;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        this.dateBirth = format.parse(dateBirthString);
     }
 }
 

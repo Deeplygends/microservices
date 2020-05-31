@@ -10,6 +10,9 @@ $(document).ready(function() {
    $("#readermenu").on('click', function(){
       fillAllReaders();
    });
+   $("#borrowmenu").on('click', function(){
+      FillAllBorrow();
+   });
    //delet un element
    
 

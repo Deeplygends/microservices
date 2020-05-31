@@ -1,8 +1,8 @@
 # M2 MIAGE IF Microservices project
 
 Authors :
--Mickaël Peeren
--Quentin Sauvage
+- Mickaël Peeren
+- Quentin Sauvage
     
 
 Project of an application built with microservices.

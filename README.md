@@ -1,3 +1,10 @@
+M2 MIAGE IF Microservices project
+
+Authors :
+    - Mickaël Peeren
+    - Quentin Sauvage
+    
+
 Project of an application built with microservices.
 
 This application manages books, readers and the ability for the readers to borrow books.

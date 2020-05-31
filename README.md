@@ -1,4 +1,4 @@
-M2 MIAGE IF Microservices project
+#M2 MIAGE IF Microservices project
 
 Authors :
     - Mickaël Peeren

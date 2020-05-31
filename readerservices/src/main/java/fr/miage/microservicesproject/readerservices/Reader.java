@@ -28,7 +28,7 @@ public class Reader {
     private char gender;
 
     private String dateBirthString;
-
+    @JsonFormat(pattern="dd-MM-yyyy")
     @Column(name="date_birth")
     private Date dateBirth;
 

@@ -1,6 +1,8 @@
 package fr.miage.microservicesproject.borrowservices;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,10 +22,11 @@ public class Borrow {
     @Column(name="reader")
     private Long reader;
 
+    @JsonFormat(pattern="dd-MM-yyyy")
     @Column(name="date_borrow")
     private Date dateBorrow;
 
-
+    @JsonFormat(pattern="dd-MM-yyyy")
     @Column(name="date_return")
     private Date dateReturn;
 
